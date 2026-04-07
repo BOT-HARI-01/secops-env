@@ -1,3 +1,13 @@
+---
+title: SecOps Environment
+emoji: 🔐
+colorFrom: purple
+colorTo: blue
+sdk: docker
+app_port: 8000
+pinned: false
+license: bsd-3-clause
+---
 # SecOps Environment - OpenEnv
 
 **Security Operations Environment for AI Agent Training and Evaluation**

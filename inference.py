@@ -30,9 +30,9 @@ from secops_env import SecOpsEnv, SecOpsAction
 from secops_env.models import TaskType, ActionType
 
 
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
+HF_TOKEN = os.getenv("HF_TOKEN")
 TASK_NAME = os.getenv("TASK_NAME", "pii_redaction")
 BENCHMARK = os.getenv("BENCHMARK", "secops_env")
 MAX_STEPS = int(os.getenv("MAX_STEPS", "10"))
@@ -79,7 +79,7 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
 class AgentConfig:
     model_name: str = MODEL_NAME
     api_base_url: str = API_BASE_URL
-    api_key: Optional[str] = API_KEY
+    api_key: Optional[str] = HF_TOKEN
     max_steps: int = MAX_STEPS
     temperature: float = TEMPERATURE
     max_tokens: int = MAX_TOKENS
@@ -447,7 +447,7 @@ def main():
     print(f"Model: {MODEL_NAME}", flush=True)
     print(f"API Base: {API_BASE_URL}", flush=True)
 
-    if not API_KEY:
+    if not HF_TOKEN:
         print("NOTE: HF_TOKEN not set - using fallback actions", flush=True)
 
     try:
@@ -456,7 +456,7 @@ def main():
         agent_config = AgentConfig(
             model_name=MODEL_NAME,
             api_base_url=API_BASE_URL,
-            api_key=API_KEY,
+            api_key=HF_TOKEN,
         )
         agent = SecOpsAgent(agent_config)
 
