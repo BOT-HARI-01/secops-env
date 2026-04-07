@@ -71,12 +71,13 @@ async def health_check():
 
 
 @app.post("/reset", response_model=ResetResponse)
-async def reset(request: ResetRequest):
+async def reset(request: ResetRequest = None):
     """Reset the environment for a new episode."""
     try:
-        result = env.reset(
-            task=request.task, difficulty=request.difficulty, seed=request.seed
-        )
+        task = request.task if request else None
+        difficulty = request.difficulty if request else None
+        seed = request.seed if request else None
+        result = env.reset(task=task, difficulty=difficulty, seed=seed)
 
         obs_dict = result.model_dump() if hasattr(result, "model_dump") else {}
         if not obs_dict:
