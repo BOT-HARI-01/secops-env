@@ -1,0 +1,66 @@
+spec_version: 1
+name: secops_env
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+
+tags:
+  - security
+  - secops
+  - devops
+  - pii
+  - compliance
+  - log-analysis
+  - config-hardening
+
+description: |
+  Security Operations Environment for OpenEnv - AI Safety Auditing
+  
+  Simulates real-world security operations tasks:
+  - PII Redaction (Easy): Identify and redact personally identifiable information
+  - Fix Public Access (Medium): Identify and fix overly permissive cloud storage
+  - Disable Ghost User (Hard): Find and disable orphaned/inactive user accounts
+  - Log Analysis (Medium): Analyze security logs and classify security events
+  - Config Hardening (Hard): Review configs for security misconfigurations
+
+difficulty_levels:
+  - easy
+  - medium
+  - hard
+
+tasks:
+  - id: pii_redaction
+    name: PII Redaction
+    difficulty: easy
+    description: Identify and redact PII (SSN, emails, phones, credit cards, IPs) from text
+    max_steps: 5
+    success_threshold: 0.9
+    
+  - id: public_access
+    name: Fix Public Access
+    difficulty: medium
+    description: Identify S3 buckets with public access and fix permissions
+    max_steps: 7
+    success_threshold: 0.85
+    
+  - id: ghost_user
+    name: Disable Ghost User
+    difficulty: hard
+    description: Identify orphaned/inactive accounts and disable them
+    max_steps: 10
+    success_threshold: 0.9
+
+  - id: log_analysis
+    name: Log Analysis
+    difficulty: medium
+    description: Analyze security logs and classify events (MALWARE, TRUE_POSITIVE, etc.)
+    max_steps: 6
+    success_threshold: 0.8
+
+  - id: config_hardening
+    name: Configuration Hardening
+    difficulty: hard
+    description: Review YAML/JSON configs for security misconfigurations
+    max_steps: 8
+    success_threshold: 0.75
