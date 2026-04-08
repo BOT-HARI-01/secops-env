@@ -231,7 +231,7 @@ class PIIRedactionTask:
         Returns:
             Tuple of (reward, feedback, done, success)
         """
-        reward = 0.0
+        reward = EPSILON
         feedback = ""
         done = False
         success = False
