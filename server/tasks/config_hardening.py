@@ -8,8 +8,6 @@ import random
 from typing import Any, Dict, List, Optional, Tuple
 from secops_env.models import SecOpsAction, TaskDifficulty, ActionType
 
-EPSILON = 0.01
-
 
 class ConfigHardeningTask:
     """
@@ -531,7 +529,7 @@ spec:
         Returns:
             Tuple of (reward, feedback, done, success)
         """
-        reward = EPSILON
+        reward = 0.01
         feedback = ""
         done = False
         success = False

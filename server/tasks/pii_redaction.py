@@ -9,8 +9,6 @@ import re
 from typing import Any, Dict, List, Optional, Tuple
 from secops_env.models import SecOpsAction, TaskDifficulty, ActionType
 
-EPSILON = 0.01
-
 
 class PIIRedactionTask:
     """
@@ -231,7 +229,7 @@ class PIIRedactionTask:
         Returns:
             Tuple of (reward, feedback, done, success)
         """
-        reward = EPSILON
+        reward = 0.01
         feedback = ""
         done = False
         success = False
@@ -244,7 +242,7 @@ class PIIRedactionTask:
                 action.redacted_text.split(",") if action.redacted_text else []
             )
             feedback = f"Identified {len(self._detected_pii)} potential PII items."
-            reward = len(self._detected_pii) * 0.05
+            reward = max(0.01, min(0.99, len(self._detected_pii) * 0.05))
 
         elif action.action_type == ActionType.FINALIZE:
             if action.redacted_text:
