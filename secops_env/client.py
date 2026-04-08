@@ -70,7 +70,7 @@ class SecOpsEnv:
         obs_data = data.get("observation", {})
         return StepResult(
             observation=SecOpsObservation(**obs_data),
-            reward=data.get("reward", 0.0),
+            reward=data.get("reward", 0.01),
             done=data.get("done", False),
             info=data.get("info", {}),
         )
@@ -93,7 +93,7 @@ class SecOpsEnv:
         obs_data = data.get("observation", {})
         return StepResult(
             observation=SecOpsObservation(**obs_data),
-            reward=data.get("reward", 0.0),
+            reward=data.get("reward", 0.01),
             done=data.get("done", False),
             info=data.get("info", {}),
         )

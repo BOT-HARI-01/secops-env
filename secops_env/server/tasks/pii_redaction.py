@@ -9,7 +9,7 @@ import re
 from typing import Any, Dict, List, Optional, Tuple
 from secops_env.models import SecOpsAction, TaskDifficulty, ActionType
 
-EPSILON = 1e-9
+EPSILON = 0.01
 
 
 class PIIRedactionTask:
@@ -268,7 +268,7 @@ class PIIRedactionTask:
                     feedback = f"Incomplete redaction. Score: {score:.2f}. Review and try again."
             else:
                 feedback = "No redacted text provided."
-                reward = EPSILON
+                reward = 0.01
 
         else:
             feedback = f"Unknown action type: {action.action_type}"

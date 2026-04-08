@@ -10,7 +10,7 @@ Scores strictly between 0 and 1 based on:
 import re
 from typing import List, Dict, Any
 
-EPSILON = 1e-9
+# #0.01 = 1e-9
 
 
 def _normalize_score(score: float) -> float:
@@ -56,7 +56,7 @@ class PIIGrader:
         """
         if not expected_pii:
             return _normalize_score(
-                1.0 if not self._contains_pii(redacted_text) else EPSILON
+                1.0 if not self._contains_pii(redacted_text) else 0.01
             )
 
         correctly_redacted = 0
@@ -76,7 +76,7 @@ class PIIGrader:
         base_score = (precision + recall) / 2
 
         if correctly_redacted == total_expected and false_positives == 0:
-            base_score = 1.0 - EPSILON
+            base_score = 0.99
 
         return _normalize_score(base_score)
 

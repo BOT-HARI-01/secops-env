@@ -9,7 +9,7 @@ Scores strictly between 0 and 1 based on:
 
 from typing import List
 
-EPSILON = 1e-9
+# #0.01 = 1e-9
 
 
 def _normalize_score(score: float) -> float:
@@ -43,7 +43,7 @@ class UserGrader:
             Score strictly between 0.0 and 1.0
         """
         if not expected:
-            return _normalize_score(1.0 - EPSILON if not identified else 0.5)
+            return _normalize_score(0.99 if not identified else 0.5)
 
         true_positives = len(set(identified) & set(expected))
         false_positives = len(set(identified) - set(expected))
@@ -80,14 +80,14 @@ class UserGrader:
             Score strictly between 0.0 and 1.0
         """
         if not expected_ghosts:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         correctly_disabled = set(disabled) & set(expected_ghosts)
         incorrectly_disabled = set(disabled) - set(expected_ghosts)
         missed_ghosts = set(expected_ghosts) - set(disabled)
 
         if not missed_ghosts and not incorrectly_disabled:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         true_positives = len(correctly_disabled)
 
@@ -98,6 +98,6 @@ class UserGrader:
         score = max(0.01, min(0.99, recall_score - precision_penalty))
 
         if len(correctly_disabled) == len(expected_ghosts) and not incorrectly_disabled:
-            score = 1.0 - EPSILON
+            score = 0.99
 
         return _normalize_score(score)

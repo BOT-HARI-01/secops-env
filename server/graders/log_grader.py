@@ -9,7 +9,7 @@ Scores strictly between 0 and 1 based on:
 
 from typing import Any, Dict, List, Optional
 
-EPSILON = 1e-9
+# #0.01 = 1e-9
 
 
 def _normalize_score(score: float) -> float:
@@ -58,13 +58,13 @@ class LogGrader:
             Score strictly between 0.0 and 1.0
         """
         if not classification:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         classification_upper = classification.upper().strip()
         expected_upper = expected_classification.upper().strip()
 
         if classification_upper == expected_upper:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         classification_normalized = self._normalize_classification(classification_upper)
         expected_normalized = self._normalize_classification(expected_upper)
@@ -77,7 +77,7 @@ class LogGrader:
         ):
             return _normalize_score(0.5)
 
-        return _normalize_score(EPSILON)
+        return _normalize_score(0.01)
 
     def grade_severity(self, severity: Optional[str], expected_severity: str) -> float:
         """
@@ -91,13 +91,13 @@ class LogGrader:
             Score strictly between 0.0 and 1.0
         """
         if not severity:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         severity_upper = severity.upper().strip()
         expected_upper = expected_severity.upper().strip()
 
         if severity_upper == expected_upper:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         severity_level = self._severity_to_level(severity_upper)
         expected_level = self._severity_to_level(expected_upper)
@@ -108,7 +108,7 @@ class LogGrader:
         level_diff = abs(severity_level - expected_level)
         if level_diff == 1:
             return _normalize_score(0.5)
-        return _normalize_score(EPSILON)
+        return _normalize_score(0.01)
 
     def grade_reasoning(
         self, reasoning: Optional[str], expected_reasoning_keywords: List[str]
@@ -124,7 +124,7 @@ class LogGrader:
             Score strictly between 0.0 and 1.0
         """
         if not reasoning:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         reasoning_lower = reasoning.lower()
 
@@ -135,7 +135,7 @@ class LogGrader:
         )
 
         if not expected_reasoning_keywords:
-            return _normalize_score(1.0 - EPSILON if len(reasoning) > 10 else 0.5)
+            return _normalize_score(0.99 if len(reasoning) > 10 else 0.5)
 
         keyword_score = matched_keywords / len(expected_reasoning_keywords)
 
@@ -194,12 +194,12 @@ class LogGrader:
             Score strictly between 0.0 and 1.0
         """
         if not submitted_alerts:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         if not expected_alerts:
-            return _normalize_score(1.0 - EPSILON if not submitted_alerts else 0.5)
+            return _normalize_score(0.99 if not submitted_alerts else 0.5)
 
-        total_score = 0.0
+        total_score = 0.01
         matched = 0
 
         for expected in expected_alerts:
@@ -219,7 +219,7 @@ class LogGrader:
                     break
 
         if matched == 0:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         avg_score = total_score / len(expected_alerts)
 
@@ -227,7 +227,9 @@ class LogGrader:
             max(0, len(submitted_alerts) - len(expected_alerts)) * 0.1
         )
 
-        return _normalize_score(max(0.01, min(0.99, avg_score - false_positive_penalty)))
+        return _normalize_score(
+            max(0.01, min(0.99, avg_score - false_positive_penalty))
+        )
 
     def _normalize_classification(self, classification: str) -> str:
         """Normalize classification string."""

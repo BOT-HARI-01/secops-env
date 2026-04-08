@@ -9,7 +9,7 @@ import random
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
-EPSILON = 1e-9
+#0.01 = 1e-9
 
 
 def _normalize_score(score: float) -> float:
@@ -120,7 +120,7 @@ class SecOpsEnvironment:
         self._state.task_data = self._task_data
 
         observation = self._build_observation(
-            reward_accumulated=EPSILON,
+            reward_accumulated=0.01,
             feedback="Environment ready. Begin security operations.",
         )
 

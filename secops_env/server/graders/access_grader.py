@@ -9,7 +9,7 @@ Scores strictly between 0 and 1 based on:
 
 from typing import List
 
-EPSILON = 1e-9
+# #0.01 = 1e-9
 
 
 def _normalize_score(score: float) -> float:
@@ -43,7 +43,7 @@ class AccessGrader:
             Score strictly between 0.0 and 1.0
         """
         if not expected:
-            return _normalize_score(1.0 - EPSILON if not identified else 0.5)
+            return _normalize_score(0.99 if not identified else 0.5)
 
         true_positives = len(set(identified) & set(expected))
         false_positives = len(set(identified) - set(expected))
@@ -78,17 +78,17 @@ class AccessGrader:
             Score strictly between 0.0 and 1.0
         """
         if not expected_public:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         correctly_fixed = set(fixed) & set(expected_public)
         missed_public = set(expected_public) - set(fixed)
         incorrectly_fixed = set(fixed) - set(expected_public)
 
         if not missed_public and not incorrectly_fixed:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         if not fixed:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         true_positives = len(correctly_fixed)
         false_positives = len(incorrectly_fixed)
@@ -99,6 +99,6 @@ class AccessGrader:
         score = max(0.01, min(0.99, base_score - penalty))
 
         if len(correctly_fixed) == len(expected_public) and not incorrectly_fixed:
-            score = 1.0 - EPSILON
+            score = 0.99
 
         return _normalize_score(score)

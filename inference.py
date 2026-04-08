@@ -39,7 +39,7 @@ MAX_STEPS = int(os.getenv("MAX_STEPS", "10"))
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "500"))
 SUCCESS_SCORE_THRESHOLD = 0.1
-EPSILON = 1e-9
+# #0.01 = 1e-9
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 
@@ -437,7 +437,7 @@ def run_episode(
             import traceback
 
             traceback.print_exc()
-        score = sum(rewards) if rewards else EPSILON
+        score = sum(rewards) if rewards else 0.01
         return False, steps_taken, score, rewards, error_msg
 
 

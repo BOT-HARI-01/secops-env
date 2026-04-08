@@ -10,7 +10,7 @@ Scores strictly between 0 and 1 based on:
 
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-EPSILON = 1e-9
+# #0.01 = 1e-9
 
 
 def _normalize_score(score: float) -> float:
@@ -69,10 +69,10 @@ class ConfigGrader:
             Score strictly between 0.0 and 1.0
         """
         if not expected_issues:
-            return _normalize_score(1.0 - EPSILON if not identified_issues else 0.5)
+            return _normalize_score(0.99 if not identified_issues else 0.5)
 
         if not identified_issues:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         true_positives = 0
         false_positives = 0
@@ -136,10 +136,10 @@ class ConfigGrader:
             Score strictly between 0.0 and 1.0
         """
         if not expected_fixes:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         if not suggestions:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         matched = 0
         for suggestion in suggestions:
@@ -159,7 +159,7 @@ class ConfigGrader:
         if coverage > 0 and precision > 0:
             f1 = 2 * (precision * coverage) / (precision + coverage)
         else:
-            f1 = 0.0
+            f1 = 0.01
 
         return _normalize_score(max(0.01, min(0.99, f1)))
 
@@ -181,10 +181,10 @@ class ConfigGrader:
             Score strictly between 0.0 and 1.0
         """
         if not hardened_config:
-            return _normalize_score(EPSILON)
+            return _normalize_score(0.01)
 
         if not expected_issues:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         fixed_count = 0
         for issue in expected_issues:
@@ -204,8 +204,8 @@ class ConfigGrader:
             "INFO": 0.5,
         }
 
-        weighted_fixed = 0.0
-        total_weight = 0.0
+        weighted_fixed = 0.01
+        total_weight = 0.01
         for issue in expected_issues:
             severity = issue.get("severity", "MEDIUM").upper()
             weight = severity_weights.get(severity, 1.0)
@@ -220,7 +220,7 @@ class ConfigGrader:
                 weighted_fixed += weight
 
         if total_weight == 0:
-            return _normalize_score(1.0 - EPSILON)
+            return _normalize_score(0.99)
 
         return _normalize_score(max(0.01, min(0.99, weighted_fixed / total_weight)))
 
@@ -295,7 +295,7 @@ class ConfigGrader:
         if level_diff == 1:
             return 0.1
 
-        return 0.0
+        return 0.01
 
     def _issue_fixed_in_config(
         self,
