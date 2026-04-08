@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 # #0.01 = 1e-9
 
-
+  
 def _normalize_score(score: float) -> float:
     """Normalize score to be strictly between 0 and 1."""
     if score <= 0:
