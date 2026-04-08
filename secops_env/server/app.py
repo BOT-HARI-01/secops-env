@@ -13,6 +13,8 @@ from pydantic import BaseModel
 from .secops_environment import SecOpsEnvironment
 from ..models import SecOpsAction, SecOpsObservation
 
+EPSILON = 1e-9
+
 
 class ResetRequest(BaseModel):
     task: Optional[str] = None
@@ -101,7 +103,7 @@ async def reset(request: ResetRequest = None):
             }
 
         return ResetResponse(
-            observation=obs_dict, reward=0.0, done=False, info=result.metadata or {}
+            observation=obs_dict, reward=EPSILON, done=False, info=result.metadata or {}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

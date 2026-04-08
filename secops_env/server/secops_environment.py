@@ -120,7 +120,8 @@ class SecOpsEnvironment:
         self._state.task_data = self._task_data
 
         observation = self._build_observation(
-            feedback="Environment ready. Begin security operations."
+            reward_accumulated=EPSILON,
+            feedback="Environment ready. Begin security operations.",
         )
 
         return observation
