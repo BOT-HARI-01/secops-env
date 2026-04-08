@@ -15,9 +15,9 @@ EPSILON = 1e-9
 def _normalize_score(score: float) -> float:
     """Normalize score to be strictly between 0 and 1."""
     if score <= 0:
-        return EPSILON
+        return 0.01
     if score >= 1:
-        return 1.0 - EPSILON
+        return 0.99
     return score
 
 
