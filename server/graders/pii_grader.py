@@ -1,7 +1,7 @@
 """
 PII Grader - Evaluates PII redaction task performance.
 
-Scores 0.0 to 1.0 based on:
+Scores strictly between 0 and 1 based on:
 - Correct identification of PII
 - Proper redaction (no PII in output)
 - No false positives
@@ -10,15 +10,26 @@ Scores 0.0 to 1.0 based on:
 import re
 from typing import List, Dict, Any
 
+EPSILON = 1e-9
+
+
+def _normalize_score(score: float) -> float:
+    """Normalize score to be strictly between 0 and 1."""
+    if score <= 0:
+        return EPSILON
+    if score >= 1:
+        return 1.0 - EPSILON
+    return score
+
 
 class PIIGrader:
     """
     Grader for PII Redaction Task.
 
     Scoring:
-    - 1.0: All PII correctly redacted, no false positives
+    - Near 1.0: All PII correctly redacted, no false positives
     - 0.5-0.9: Partial completion
-    - 0.0: Failed to redact PII
+    - Near 0.0: Failed to redact PII
     """
 
     PII_PATTERNS = {
@@ -41,10 +52,12 @@ class PIIGrader:
             expected_pii: List of expected PII items [{"type": "...", "value": "..."}]
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not expected_pii:
-            return 1.0 if not self._contains_pii(redacted_text) else 0.0
+            return _normalize_score(
+                1.0 if not self._contains_pii(redacted_text) else EPSILON
+            )
 
         correctly_redacted = 0
         false_positives = self._count_exposed_pii(redacted_text)
@@ -63,9 +76,9 @@ class PIIGrader:
         base_score = (precision + recall) / 2
 
         if correctly_redacted == total_expected and false_positives == 0:
-            base_score = 1.0
+            base_score = 1.0 - EPSILON
 
-        return max(0.0, min(1.0, base_score))
+        return _normalize_score(base_score)
 
     def _contains_pii(self, text: str) -> bool:
         """Check if text contains any PII."""

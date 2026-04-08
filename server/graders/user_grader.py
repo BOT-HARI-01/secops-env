@@ -1,7 +1,7 @@
 """
 User Grader - Evaluates ghost user task performance.
 
-Scores 0.0 to 1.0 based on:
+Scores strictly between 0 and 1 based on:
 - Correct identification of ghost users
 - Proper disabling of ghost users
 - No false positives (active users not disabled)
@@ -9,15 +9,26 @@ Scores 0.0 to 1.0 based on:
 
 from typing import List
 
+EPSILON = 1e-9
+
+
+def _normalize_score(score: float) -> float:
+    """Normalize score to be strictly between 0 and 1."""
+    if score <= 0:
+        return EPSILON
+    if score >= 1:
+        return 1.0 - EPSILON
+    return score
+
 
 class UserGrader:
     """
     Grader for Ghost User Task.
 
     Scoring:
-    - 1.0: All ghost users correctly identified and disabled, no false positives
+    - Near 1.0: All ghost users correctly identified and disabled, no false positives
     - 0.5-0.9: Partial completion
-    - 0.0: Failed to handle ghost users or disabled active users
+    - Near 0.0: Failed to handle ghost users or disabled active users
     """
 
     def grade_identification(self, identified: List[str], expected: List[str]) -> float:
@@ -29,10 +40,10 @@ class UserGrader:
             expected: Actually ghost accounts
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not expected:
-            return 1.0 if not identified else 0.5
+            return _normalize_score(1.0 - EPSILON if not identified else 0.5)
 
         true_positives = len(set(identified) & set(expected))
         false_positives = len(set(identified) - set(expected))
@@ -49,7 +60,7 @@ class UserGrader:
         penalty = false_positives * 0.15
         score = max(0.0, min(1.0, f1 - penalty))
 
-        return score
+        return _normalize_score(score)
 
     def grade_disabling(
         self,
@@ -66,17 +77,17 @@ class UserGrader:
             identified_ghosts: Accounts identified as ghost
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not expected_ghosts:
-            return 1.0
+            return _normalize_score(1.0 - EPSILON)
 
         correctly_disabled = set(disabled) & set(expected_ghosts)
         incorrectly_disabled = set(disabled) - set(expected_ghosts)
         missed_ghosts = set(expected_ghosts) - set(disabled)
 
         if not missed_ghosts and not incorrectly_disabled:
-            return 1.0
+            return _normalize_score(1.0 - EPSILON)
 
         true_positives = len(correctly_disabled)
 
@@ -87,6 +98,6 @@ class UserGrader:
         score = max(0.0, min(1.0, recall_score - precision_penalty))
 
         if len(correctly_disabled) == len(expected_ghosts) and not incorrectly_disabled:
-            score = 1.0
+            score = 1.0 - EPSILON
 
-        return score
+        return _normalize_score(score)

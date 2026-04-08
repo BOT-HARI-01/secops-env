@@ -1,7 +1,7 @@
 """
 Config Grader - Evaluates configuration hardening task performance.
 
-Scores 0.0 to 1.0 based on:
+Scores strictly between 0 and 1 based on:
 - Correct identification of security issues
 - Appropriate severity assessment
 - Proper remediation suggestions
@@ -10,15 +10,26 @@ Scores 0.0 to 1.0 based on:
 
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+EPSILON = 1e-9
+
+
+def _normalize_score(score: float) -> float:
+    """Normalize score to be strictly between 0 and 1."""
+    if score <= 0:
+        return EPSILON
+    if score >= 1:
+        return 1.0 - EPSILON
+    return score
+
 
 class ConfigGrader:
     """
     Grader for Config Hardening Task.
 
     Scoring:
-    - 1.0: All issues identified with correct severity, proper fixes applied
+    - Near 1.0: All issues identified with correct severity, proper fixes applied
     - 0.5-0.9: Partial completion
-    - 0.0: Failed to identify or fix issues
+    - Near 0.0: Failed to identify or fix issues
     """
 
     SEVERITY_LEVELS = {
@@ -55,13 +66,13 @@ class ConfigGrader:
             expected_issues: List of expected issues in the config
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not expected_issues:
-            return 1.0 if not identified_issues else 0.5
+            return _normalize_score(1.0 - EPSILON if not identified_issues else 0.5)
 
         if not identified_issues:
-            return 0.0
+            return _normalize_score(EPSILON)
 
         true_positives = 0
         false_positives = 0
@@ -107,7 +118,7 @@ class ConfigGrader:
 
         score = max(0.0, min(1.0, f1_based_score - precision_penalty))
 
-        return score
+        return _normalize_score(score)
 
     def grade_remediation_suggestions(
         self,
@@ -122,13 +133,13 @@ class ConfigGrader:
             expected_fixes: List of expected fixes
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not expected_fixes:
-            return 1.0
+            return _normalize_score(1.0 - EPSILON)
 
         if not suggestions:
-            return 0.0
+            return _normalize_score(EPSILON)
 
         matched = 0
         for suggestion in suggestions:
@@ -150,7 +161,7 @@ class ConfigGrader:
         else:
             f1 = 0.0
 
-        return max(0.0, min(1.0, f1))
+        return _normalize_score(max(0.0, min(1.0, f1)))
 
     def grade_hardened_config(
         self,
@@ -167,13 +178,13 @@ class ConfigGrader:
             config_content: Original configuration content
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not hardened_config:
-            return 0.0
+            return _normalize_score(EPSILON)
 
         if not expected_issues:
-            return 1.0
+            return _normalize_score(1.0 - EPSILON)
 
         fixed_count = 0
         for issue in expected_issues:
@@ -209,9 +220,9 @@ class ConfigGrader:
                 weighted_fixed += weight
 
         if total_weight == 0:
-            return 1.0
+            return _normalize_score(1.0 - EPSILON)
 
-        return max(0.0, min(1.0, weighted_fixed / total_weight))
+        return _normalize_score(max(0.0, min(1.0, weighted_fixed / total_weight)))
 
     def grade_full_review(
         self,
@@ -234,7 +245,7 @@ class ConfigGrader:
             config_content: Original config
 
         Returns:
-            Overall score between 0.0 and 1.0
+            Overall score strictly between 0.0 and 1.0
         """
         identification_score = (
             self.grade_issue_identification(identified_issues, expected_issues) * 0.4
@@ -249,7 +260,7 @@ class ConfigGrader:
 
         total_score = identification_score + suggestion_score + fix_score
 
-        return max(0.0, min(1.0, total_score))
+        return _normalize_score(max(0.0, min(1.0, total_score)))
 
     def _types_match(self, identified_type: str, expected_type: str) -> bool:
         """Check if issue types match."""
