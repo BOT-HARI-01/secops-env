@@ -116,7 +116,7 @@ class ConfigGrader:
             / (true_positives / len(expected_issues) + recall + 0.001)
         )
 
-        score = max(0.0, min(1.0, f1_based_score - precision_penalty))
+        score = max(0.01, min(0.99, f1_based_score - precision_penalty))
 
         return _normalize_score(score)
 
@@ -161,7 +161,7 @@ class ConfigGrader:
         else:
             f1 = 0.0
 
-        return _normalize_score(max(0.0, min(1.0, f1)))
+        return _normalize_score(max(0.01, min(0.99, f1)))
 
     def grade_hardened_config(
         self,
@@ -222,7 +222,7 @@ class ConfigGrader:
         if total_weight == 0:
             return _normalize_score(1.0 - EPSILON)
 
-        return _normalize_score(max(0.0, min(1.0, weighted_fixed / total_weight)))
+        return _normalize_score(max(0.01, min(0.99, weighted_fixed / total_weight)))
 
     def grade_full_review(
         self,
@@ -260,7 +260,7 @@ class ConfigGrader:
 
         total_score = identification_score + suggestion_score + fix_score
 
-        return _normalize_score(max(0.0, min(1.0, total_score)))
+        return _normalize_score(max(0.01, min(0.99, total_score)))
 
     def _types_match(self, identified_type: str, expected_type: str) -> bool:
         """Check if issue types match."""

@@ -139,7 +139,7 @@ class LogGrader:
 
         keyword_score = matched_keywords / len(expected_reasoning_keywords)
 
-        length_score = min(1.0, len(reasoning) / 50)
+        length_score = min(0.99, len(reasoning) / 50)
 
         return _normalize_score((keyword_score * 0.7) + (length_score * 0.3))
 
@@ -176,7 +176,7 @@ class LogGrader:
 
         total_score = class_score + severity_score + reasoning_score
 
-        return _normalize_score(max(0.0, min(1.0, total_score)))
+        return _normalize_score(max(0.01, min(0.99, total_score)))
 
     def grade_alerts(
         self,
@@ -227,7 +227,7 @@ class LogGrader:
             max(0, len(submitted_alerts) - len(expected_alerts)) * 0.1
         )
 
-        return _normalize_score(max(0.0, min(1.0, avg_score - false_positive_penalty)))
+        return _normalize_score(max(0.01, min(0.99, avg_score - false_positive_penalty)))
 
     def _normalize_classification(self, classification: str) -> str:
         """Normalize classification string."""

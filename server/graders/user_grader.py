@@ -58,7 +58,7 @@ class UserGrader:
         )
 
         penalty = false_positives * 0.15
-        score = max(0.0, min(1.0, f1 - penalty))
+        score = max(0.01, min(0.99, f1 - penalty))
 
         return _normalize_score(score)
 
@@ -95,7 +95,7 @@ class UserGrader:
 
         precision_penalty = len(incorrectly_disabled) * 0.25
 
-        score = max(0.0, min(1.0, recall_score - precision_penalty))
+        score = max(0.01, min(0.99, recall_score - precision_penalty))
 
         if len(correctly_disabled) == len(expected_ghosts) and not incorrectly_disabled:
             score = 1.0 - EPSILON

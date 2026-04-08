@@ -71,7 +71,7 @@ class PIIGrader:
 
         recall = correctly_redacted / total_expected if total_expected > 0 else 1.0
 
-        precision = 1.0 - min(1.0, false_positives * 0.2)
+        precision = 1.0 - min(0.99, false_positives * 0.2)
 
         base_score = (precision + recall) / 2
 

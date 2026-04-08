@@ -221,7 +221,7 @@ class SecOpsEnvironment:
             else 1
         )
 
-        return _normalize_score(min(1.0, fixed / max(1, total)))
+        return _normalize_score(min(0.99, fixed / max(1, total)))
 
     @property
     def state(self) -> EpisodeState:

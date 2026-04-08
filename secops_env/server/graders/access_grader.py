@@ -59,7 +59,7 @@ class AccessGrader:
         )
 
         penalty = false_positives * 0.1
-        score = max(0.0, min(1.0, f1 - penalty))
+        score = max(0.01, min(0.99, f1 - penalty))
 
         return _normalize_score(score)
 
@@ -96,7 +96,7 @@ class AccessGrader:
         base_score = true_positives / len(expected_public) if expected_public else 1.0
         penalty = false_positives * 0.2
 
-        score = max(0.0, min(1.0, base_score - penalty))
+        score = max(0.01, min(0.99, base_score - penalty))
 
         if len(correctly_fixed) == len(expected_public) and not incorrectly_fixed:
             score = 1.0 - EPSILON
