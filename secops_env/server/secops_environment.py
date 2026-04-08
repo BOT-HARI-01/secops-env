@@ -9,7 +9,7 @@ import random
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
-# #0.01 = 1e-9
+#0.01 = 1e-9
 
 
 def _normalize_score(score: float) -> float:
@@ -158,7 +158,8 @@ class SecOpsEnvironment:
         )
 
         self._reward_history.append(step_reward)
-        reward_accumulated = sum(self._reward_history)
+        # Fix applied here: ensure the accumulated reward is strictly bounded (0, 1)
+        reward_accumulated = _normalize_score(sum(self._reward_history))
 
         observation = self._build_observation(
             reward_accumulated=reward_accumulated,
@@ -230,4 +231,5 @@ class SecOpsEnvironment:
 
     def get_reward(self) -> float:
         """Get accumulated reward."""
-        return sum(self._reward_history)
+        # Fix applied here: ensure getting the reward also strictly bounds (0, 1)
+        return _normalize_score(sum(self._reward_history))

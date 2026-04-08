@@ -49,13 +49,13 @@ class AccessGrader:
         false_positives = len(set(identified) - set(expected))
         false_negatives = len(set(expected) - set(identified))
 
-        precision = true_positives / len(identified) if identified else 0.0
-        recall = true_positives / len(expected) if expected else 0.0
+        precision = true_positives / len(identified) if identified else 0.01
+        recall = true_positives / len(expected) if expected else 0.01
 
         f1 = (
             2 * (precision * recall) / (precision + recall)
             if (precision + recall) > 0
-            else 0.0
+            else 0.01
         )
 
         penalty = false_positives * 0.1
