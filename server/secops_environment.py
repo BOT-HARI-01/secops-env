@@ -9,6 +9,18 @@ import random
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
+#0.01 = 1e-9
+
+
+def _normalize_score(score: float) -> float:
+    """Normalize score to be strictly between 0 and 1."""
+    if score <= 0:
+        return 0.01
+    if score >= 1:
+        return 0.99
+    return score
+
+
 from secops_env.models import (
     SecOpsAction,
     SecOpsObservation,
@@ -108,7 +120,8 @@ class SecOpsEnvironment:
         self._state.task_data = self._task_data
 
         observation = self._build_observation(
-            feedback="Environment ready. Begin security operations."
+            reward_accumulated=0.01,
+            feedback="Environment ready. Begin security operations.",
         )
 
         return observation
@@ -198,7 +211,7 @@ class SecOpsEnvironment:
     def _calculate_partial_progress(self) -> float:
         """Calculate partial progress toward task completion."""
         if not self._current_task:
-            return 0.0
+            return 0.01
 
         task_info = self._current_task.get_info()
         fixed = len(task_info.get("fixed_issues", []))
@@ -208,7 +221,7 @@ class SecOpsEnvironment:
             else 1
         )
 
-        return min(1.0, fixed / max(1, total))
+        return _normalize_score(min(0.99, fixed / max(1, total)))
 
     @property
     def state(self) -> EpisodeState:

@@ -10,8 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from secops_env.server.secops_environment import SecOpsEnvironment
-from secops_env.models import SecOpsAction, SecOpsObservation
+from .secops_environment import SecOpsEnvironment
+from ..models import SecOpsAction, SecOpsObservation
+
+# #0.01 = 1e-9
 
 
 class ResetRequest(BaseModel):
@@ -101,7 +103,7 @@ async def reset(request: ResetRequest = None):
             }
 
         return ResetResponse(
-            observation=obs_dict, reward=0.0, done=False, info=result.metadata or {}
+            observation=obs_dict, reward=0.01, done=False, info=result.metadata or {}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

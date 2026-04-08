@@ -1,7 +1,7 @@
 """
 Log Grader - Evaluates log analysis task performance.
 
-Scores 0.0 to 1.0 based on:
+Scores strictly between 0 and 1 based on:
 - Correct classification of log entries
 - Correct severity assessment
 - Proper reasoning for analysis
@@ -9,15 +9,26 @@ Scores 0.0 to 1.0 based on:
 
 from typing import Any, Dict, List, Optional
 
+# #0.01 = 1e-9
+
+
+def _normalize_score(score: float) -> float:
+    """Normalize score to be strictly between 0 and 1."""
+    if score <= 0:
+        return 0.01
+    if score >= 1:
+        return 0.99
+    return score
+
 
 class LogGrader:
     """
     Grader for Log Analysis Task.
 
     Scoring:
-    - 1.0: Correct classification, severity, and reasoning
+    - Near 1.0: Correct classification, severity, and reasoning
     - 0.5-0.9: Partial completion
-    - 0.0: Failed to correctly analyze logs
+    - Near 0.0: Failed to correctly analyze logs
     """
 
     VALID_CLASSIFICATIONS = {
@@ -44,29 +55,29 @@ class LogGrader:
             expected_classification: Expected classification
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not classification:
-            return 0.0
+            return _normalize_score(0.01)
 
         classification_upper = classification.upper().strip()
         expected_upper = expected_classification.upper().strip()
 
         if classification_upper == expected_upper:
-            return 1.0
+            return _normalize_score(0.99)
 
         classification_normalized = self._normalize_classification(classification_upper)
         expected_normalized = self._normalize_classification(expected_upper)
 
         if classification_normalized == expected_normalized:
-            return 0.9
+            return _normalize_score(0.9)
 
         if self._is_related_classification(
             classification_normalized, expected_normalized
         ):
-            return 0.5
+            return _normalize_score(0.5)
 
-        return 0.0
+        return _normalize_score(0.01)
 
     def grade_severity(self, severity: Optional[str], expected_severity: str) -> float:
         """
@@ -77,27 +88,27 @@ class LogGrader:
             expected_severity: Expected severity
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not severity:
-            return 0.0
+            return _normalize_score(0.01)
 
         severity_upper = severity.upper().strip()
         expected_upper = expected_severity.upper().strip()
 
         if severity_upper == expected_upper:
-            return 1.0
+            return _normalize_score(0.99)
 
         severity_level = self._severity_to_level(severity_upper)
         expected_level = self._severity_to_level(expected_upper)
 
         if severity_level == expected_level:
-            return 0.8
+            return _normalize_score(0.8)
 
         level_diff = abs(severity_level - expected_level)
         if level_diff == 1:
-            return 0.5
-        return 0.0
+            return _normalize_score(0.5)
+        return _normalize_score(0.01)
 
     def grade_reasoning(
         self, reasoning: Optional[str], expected_reasoning_keywords: List[str]
@@ -110,10 +121,10 @@ class LogGrader:
             expected_reasoning_keywords: Keywords that should appear in reasoning
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not reasoning:
-            return 0.0
+            return _normalize_score(0.01)
 
         reasoning_lower = reasoning.lower()
 
@@ -124,13 +135,13 @@ class LogGrader:
         )
 
         if not expected_reasoning_keywords:
-            return 1.0 if len(reasoning) > 10 else 0.5
+            return _normalize_score(0.99 if len(reasoning) > 10 else 0.5)
 
         keyword_score = matched_keywords / len(expected_reasoning_keywords)
 
-        length_score = min(1.0, len(reasoning) / 50)
+        length_score = min(0.99, len(reasoning) / 50)
 
-        return (keyword_score * 0.7) + (length_score * 0.3)
+        return _normalize_score((keyword_score * 0.7) + (length_score * 0.3))
 
     def grade_full_analysis(
         self,
@@ -153,7 +164,7 @@ class LogGrader:
             expected_reasoning_keywords: Keywords for reasoning
 
         Returns:
-            Overall score between 0.0 and 1.0
+            Overall score strictly between 0.0 and 1.0
         """
         class_score = (
             self.grade_classification(classification, expected_classification) * 0.5
@@ -165,7 +176,7 @@ class LogGrader:
 
         total_score = class_score + severity_score + reasoning_score
 
-        return max(0.0, min(1.0, total_score))
+        return _normalize_score(max(0.01, min(0.99, total_score)))
 
     def grade_alerts(
         self,
@@ -180,15 +191,15 @@ class LogGrader:
             expected_alerts: Expected alert analysis results
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not submitted_alerts:
-            return 0.0
+            return _normalize_score(0.01)
 
         if not expected_alerts:
-            return 1.0 if not submitted_alerts else 0.5
+            return _normalize_score(0.99 if not submitted_alerts else 0.5)
 
-        total_score = 0.0
+        total_score = 0.01
         matched = 0
 
         for expected in expected_alerts:
@@ -208,7 +219,7 @@ class LogGrader:
                     break
 
         if matched == 0:
-            return 0.0
+            return _normalize_score(0.01)
 
         avg_score = total_score / len(expected_alerts)
 
@@ -216,7 +227,9 @@ class LogGrader:
             max(0, len(submitted_alerts) - len(expected_alerts)) * 0.1
         )
 
-        return max(0.0, min(1.0, avg_score - false_positive_penalty))
+        return _normalize_score(
+            max(0.01, min(0.99, avg_score - false_positive_penalty))
+        )
 
     def _normalize_classification(self, classification: str) -> str:
         """Normalize classification string."""

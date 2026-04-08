@@ -1,7 +1,7 @@
 """
 PII Grader - Evaluates PII redaction task performance.
 
-Scores 0.0 to 1.0 based on:
+Scores strictly between 0 and 1 based on:
 - Correct identification of PII
 - Proper redaction (no PII in output)
 - No false positives
@@ -10,15 +10,26 @@ Scores 0.0 to 1.0 based on:
 import re
 from typing import List, Dict, Any
 
+# #0.01 = 1e-9
+
+
+def _normalize_score(score: float) -> float:
+    """Normalize score to be strictly between 0 and 1."""
+    if score <= 0:
+        return 0.01
+    if score >= 1:
+        return 0.99
+    return score
+
 
 class PIIGrader:
     """
     Grader for PII Redaction Task.
 
     Scoring:
-    - 1.0: All PII correctly redacted, no false positives
+    - Near 1.0: All PII correctly redacted, no false positives
     - 0.5-0.9: Partial completion
-    - 0.0: Failed to redact PII
+    - Near 0.0: Failed to redact PII
     """
 
     PII_PATTERNS = {
@@ -41,10 +52,12 @@ class PIIGrader:
             expected_pii: List of expected PII items [{"type": "...", "value": "..."}]
 
         Returns:
-            Score between 0.0 and 1.0
+            Score strictly between 0.0 and 1.0
         """
         if not expected_pii:
-            return 1.0 if not self._contains_pii(redacted_text) else 0.0
+            return _normalize_score(
+                1.0 if not self._contains_pii(redacted_text) else 0.01
+            )
 
         correctly_redacted = 0
         false_positives = self._count_exposed_pii(redacted_text)
@@ -58,14 +71,14 @@ class PIIGrader:
 
         recall = correctly_redacted / total_expected if total_expected > 0 else 1.0
 
-        precision = 1.0 - min(1.0, false_positives * 0.2)
+        precision = 1.0 - min(0.99, false_positives * 0.2)
 
         base_score = (precision + recall) / 2
 
         if correctly_redacted == total_expected and false_positives == 0:
-            base_score = 1.0
+            base_score = 0.99
 
-        return max(0.0, min(1.0, base_score))
+        return _normalize_score(base_score)
 
     def _contains_pii(self, text: str) -> bool:
         """Check if text contains any PII."""

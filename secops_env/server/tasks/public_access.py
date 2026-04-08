@@ -8,6 +8,8 @@ import random
 from typing import Any, Dict, List, Optional, Tuple
 from secops_env.models import SecOpsAction, TaskDifficulty, ActionType
 
+EPSILON = 0.01
+
 
 class PublicAccessTask:
     """
@@ -92,7 +94,7 @@ class PublicAccessTask:
         Returns:
             Tuple of (reward, feedback, done, success)
         """
-        reward = 0.0
+        reward = EPSILON
         feedback = ""
         done = False
         success = False
